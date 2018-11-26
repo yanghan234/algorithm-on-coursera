@@ -3,7 +3,7 @@ JC=javac
 JVM=java
 
 all: *.java
-	$(JC) $(JFLAGS) -cp . $^
+	$(JC) $(JFLAGS) -cp ":../algs4.jar:" $^
 
 
 
