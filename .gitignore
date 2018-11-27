@@ -1,4 +1,5 @@
 *.un~
 */*.class
 algs4.jar
+*/*.out
 */*.zip
