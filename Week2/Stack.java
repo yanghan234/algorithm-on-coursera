@@ -1,42 +1,33 @@
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class Stack<Item>
 {
-    int count;
-    Node<Item> head;
-    Stack() { head = null; count = 0; };
-    void push( Item elem )
+    public int capacity;
+    public int count;
+    public Item[] elems;
+
+    // constructor
+    public Stack ()
     {
-        Node<Item> n = new Node<Item>();
-        n.val = elem;
-        n.next = null;
-        if ( head == null )
-            head = n;
-        else
-        {
-            n.next = head;
-            head = n;
-        }
-        count++;
+        capacity = 0;
     }
 
-    Item pop( )
+    // constructor
+    public Stack ( int size )
     {
-        if ( head == null )
+        capacity = size;
+        elems = (Item[]) new Object[capacity];
+    }
+
+    public isFull( ) { return count == capacity; };
+    public isEmpty( ) { return count == 0; };
+
+    public void push( Item item )
+    {
 
     }
 
-
-    private static class Node <Item>
-    {
-        Item val;
-        Node next;
-    }
-
-    public static void main(String[] args)
-    {
-        Stack<Integer> st = new Stack<Integer>();
-        Node<Integer> n = new Node<Integer>(1);
-        st.head = n;
-    }
 
 }
 
