@@ -102,9 +102,15 @@ public class Deque<Item> implements Iterable<Item>
             throw new NoSuchElementException("Deque is empty");
 
         Node<Item> node = head;
-        head = head.right;
+
+        if ( head != tail )
+        {
+            head = head.right;
+            if ( head != null ) head.left = null;
+        }
+        else
+            head = tail = null;
         count--;
-        if ( head != null ) head.left = null;
         return node.val;
     }
 
@@ -114,9 +120,14 @@ public class Deque<Item> implements Iterable<Item>
             throw new NoSuchElementException("Deque is empty");
 
         Node<Item> node = tail;
-        tail = tail.left;
+        if ( tail != head )
+        {
+            tail = tail.left;
+            if ( tail != null ) tail.right = null;
+        }
+        else
+            head = tail = null;
         count--;
-        if ( tail != null ) tail.right = null;
         return node.val;
     }
 
@@ -124,13 +135,11 @@ public class Deque<Item> implements Iterable<Item>
     {
         Deque<Integer> q = new Deque<>();
 
-        q.addFirst(2);
         q.addLast(1);
-        q.addFirst(3);
-        q.addLast(-1);
-
+        //System.out.println("isEmpty: " + q.isEmpty() );
+        System.out.println(q.removeFirst());
+        System.out.println("isEmpty: " + q.isEmpty() );
         // System.out.println(q.removeFirst());
-        q.addLast(4);
         // System.out.println(q.removeLast());
         // System.out.println(q.removeFirst());
         // System.out.println(q.removeFirst());

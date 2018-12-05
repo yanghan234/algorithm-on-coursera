@@ -7,16 +7,19 @@ public class Permutation
     {
         int n = new Integer(args[0]).intValue();
         RandomizedQueue<String> r = new RandomizedQueue<>();
-        while (!StdIn.isEmpty())
+
+        int i = 0;
+        while ( !StdIn.isEmpty() )
         {
             String item = StdIn.readString();
             r.enqueue(item);
+            i++;
+            if ( i >= n ) break;
         }
 
         if ( n > r.size() ) throw new NoSuchElementException("Index out of range");
 
-        int i = 0;
-
+        i = 0;
         for ( String s : r )
         {
             if ( i < n )
