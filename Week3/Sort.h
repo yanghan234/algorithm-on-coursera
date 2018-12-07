@@ -18,6 +18,7 @@ class Sort
         int elems( int i ) const { return _elems[i]; };
         unsigned size() const { return _N; };
         void displayme( ostream &os = cout ) const;
+        bool isSorted( ) const;
         ~Sort() { _elems.clear(); };
 };
 #endif

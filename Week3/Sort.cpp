@@ -26,3 +26,11 @@ void Sort::displayme( ostream &os ) const
         os << _elems[i] << ", ";
     os << endl;
 }
+
+bool Sort::isSorted( ) const
+{
+    for ( unsigned i = 0; i < _N-1; i++ )
+        if ( _elems[i] > _elems[i+1] )
+            return false;
+    return true;
+}

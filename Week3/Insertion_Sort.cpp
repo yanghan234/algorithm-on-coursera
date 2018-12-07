@@ -37,25 +37,25 @@ ostream& operator<<( ostream &os, Insertion_Sort &rhs )
 int main()
 {
 
-    unsigned Ntest = 4;
+    unsigned Ntest = 18;
     unsigned N = 1;
     ofstream outFile("Insertion_Sort_runtime.csv");
     outFile << "N,t" << endl;
     for ( unsigned itest = 0; itest < Ntest; itest++ )
     {
-        clock_t begin = clock();
 
         N = N*2;
         Insertion_Sort *ss = new Insertion_Sort(N);
         ss->initialize();
 
-        ss->displayme();
+        clock_t begin = clock();
+        // ss->displayme();
         ss->sort();
-        ss->displayme();
+        // ss->displayme();
 
         clock_t end = clock();
 
-        cout << "RunTime: " <<  end-begin  << endl;
+        cout << "N = " << ss->size() << ", RunTime: " <<  end-begin << ", isSorted?: " << ss->isSorted()  << endl;
         outFile << N << ", " << end-begin << endl;
     }
 }
