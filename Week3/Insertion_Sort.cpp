@@ -14,12 +14,30 @@ class Insertion_Sort : public Sort
 
 void Insertion_Sort::sort()
 {
+    for ( unsigned i = 1; i < _N; i++ )
+    {
+        int val = _elems[i];
+        int j = i - 1;
+        for ( ; j >= 0; j-- )
+            if ( _elems[j] > val )
+                _elems[j+1] = _elems[j];
+            else
+                break;
+        _elems[j+1] = val;
+    }
+}
+
+ostream& operator<<( ostream &os, Insertion_Sort &rhs )
+{
+    for ( unsigned i = 0; i < rhs.size(); i++ )
+        os << rhs.elems(i) << ", ";
+    return os;
 }
 
 int main()
 {
 
-    unsigned Ntest = 15;
+    unsigned Ntest = 4;
     unsigned N = 1;
     ofstream outFile("Insertion_Sort_runtime.csv");
     outFile << "N,t" << endl;
@@ -28,10 +46,12 @@ int main()
         clock_t begin = clock();
 
         N = N*2;
-        Sort *ss = new Insertion_Sort(N);
+        Insertion_Sort *ss = new Insertion_Sort(N);
         ss->initialize();
 
+        ss->displayme();
         ss->sort();
+        ss->displayme();
 
         clock_t end = clock();
 

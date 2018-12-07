@@ -1,5 +1,7 @@
 #include "Sort.h"
 #include <cstdlib>
+#include <iostream>
+using namespace std;
 
 void Sort::initialize()
 {
@@ -18,11 +20,9 @@ void Sort::swap( int &a, int &b )
     b = tmp;
 }
 
-ostream& operator<<( ostream &os, Sort &rhs )
+void Sort::displayme( ostream &os ) const
 {
-    for ( unsigned i = 0; i < rhs.size(); i++ )
-        os << rhs.elems(i) << ", ";
-    return os;
+    for ( unsigned i = 0; i < _N; i++ )
+        os << _elems[i] << ", ";
+    os << endl;
 }
-
-
