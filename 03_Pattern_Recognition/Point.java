@@ -11,6 +11,7 @@
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.lang.NullPointerException;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point>
@@ -62,6 +63,8 @@ public class Point implements Comparable<Point>
      */
     public double slopeTo(Point that) {
         /* YOUR CODE HERE */
+        if ( that == null )
+            throw new NullPointerException();
         double slope;
         if ( this.x != that.x )
             slope = ( this.y - that.y )*1.0 / ( this.x - that.x );
@@ -86,6 +89,8 @@ public class Point implements Comparable<Point>
      */
     public int compareTo(Point that) {
         /* YOUR CODE HERE */
+        if ( that == null )
+            throw new NullPointerException();
         int result;
         if ( this.x == that.x && this.y == that.y )
             result = 0;
