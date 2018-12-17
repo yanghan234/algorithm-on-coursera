@@ -18,8 +18,8 @@ void Heap::add( int item )
     if ( isFull() )
         resize( );
     _elems[_size] = item;
-    _size++;
     moveup(_size-1);
+    _size++;
 }
 
 int Heap::get( )
@@ -55,6 +55,12 @@ void Heap::movedown( int index )
     {
         int leftKid = 2*me+1;
         int rightKid = 2*me+2;
+        if ( rightKid >= _size )
+        {
+            if ( _elems[leftKid] > _elems[me] )
+                swap(leftKid,me);
+            break;
+        }
         if ( _elems[me] >= _elems[leftKid] && _elems[me] >= _elems[rightKid] )
             break;
         if ( _elems[leftKid] > _elems[rightKid] )

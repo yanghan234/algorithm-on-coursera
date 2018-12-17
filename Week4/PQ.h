@@ -15,7 +15,11 @@ class PQ
         void resize( );       // once it is full, double the capacity
 
     public:
-        PQ(int capacity) : _capacity( capacity ) { _elems = new int[capacity]; };
+        PQ(int capacity) : _capacity( capacity )
+        {
+            _elems = new int[capacity];
+            _size = 0;
+        }
 
         int size() const { return _size;};
         int capacity() const { return _capacity; };
