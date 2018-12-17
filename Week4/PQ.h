@@ -15,6 +15,7 @@ class PQ
         void resize( );       // once it is full, double the capacity
 
     public:
+        PQ(){};
         PQ(int capacity) : _capacity( capacity )
         {
             _elems = new int[capacity];

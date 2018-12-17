@@ -1,17 +1,6 @@
 #include "PQ.h"
+#include "Heap.h"
 #include <iostream>
-
-class Heap : public PQ
-{
-    public:
-        Heap( int capacity ) : PQ(capacity) { };
-        virtual void add( int item );
-        virtual int get( );
-        int get( int index );
-
-        void moveup( int index );
-        void movedown( int index );
-};
 
 void Heap::add( int item )
 {
@@ -32,7 +21,7 @@ int Heap::get( int index )
     int item = _elems[index];
     swap(index,_size-1);
     _size--;
-    movedown(index);
+    movedown(index, _size);
     return item;
 }
 
@@ -48,14 +37,14 @@ void Heap::moveup( int index )
     }
 }
 
-void Heap::movedown( int index )
+void Heap::movedown( int index, int N )
 {
     int me = index;
-    while ( me < _size / 2 )
+    while ( me < N / 2 )
     {
         int leftKid = 2*me+1;
         int rightKid = 2*me+2;
-        if ( rightKid >= _size )
+        if ( rightKid >= N )
         {
             if ( _elems[leftKid] > _elems[me] )
                 swap(leftKid,me);
@@ -76,23 +65,3 @@ void Heap::movedown( int index )
     }
 }
 
-int main()
-{
-    PQ *hp = new Heap(10);
-
-    hp->add(1);
-    hp->add(2);
-    hp->add(0);
-    hp->add(-1);
-    hp->displayme();
-
-    cout << hp->get() << endl;
-    hp->displayme();
-    cout << hp->get() << endl;
-    hp->displayme();
-    cout << hp->get() << endl;
-    cout << hp->get() << endl;
-
-    hp->displayme();
-
-}
