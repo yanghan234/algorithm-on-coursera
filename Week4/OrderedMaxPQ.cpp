@@ -17,7 +17,7 @@ void OrderedMaxPQ::add( int item )
         this->resize();
 
     int i = _size-2;
-    while ( _elems[i] > item )
+    while ( i >= 0 &&  _elems[i] > item )
     {
         _elems[i+1] = _elems[i];
         i--;
