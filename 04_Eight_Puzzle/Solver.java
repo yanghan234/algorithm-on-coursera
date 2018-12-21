@@ -1,11 +1,13 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Comparator;
+import java.util.Stack;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.In;
 
 public class Solver {
-    private int numOfMoves = 0;
+    private boolean solvable;
+    private Node finalNode, finalNode2;
     public Solver(Board initial)           // find a solution to the initial board (using the A* algorithm)
     {
         MinPQ<Node> pq = new MinPQ<Node>( new NodeComparator() );
@@ -14,64 +16,90 @@ public class Solver {
         pq.insert( new Node( initial, null, 0 ) );
         pq2.insert( new Node( initial.twin(), null, 0 ) );
 
-        Board next,next2;
         while (true)
         {
-            next = nextStep(pq);
-            next2 = nextStep(pq2);
-            if ( next != null)// || next2 != null )
+            finalNode = nextStep(pq);
+            finalNode2 = nextStep(pq2);
+            if ( finalNode != null || finalNode2 != null )
                 break;
         }
-        if ( next != null )
+        if ( finalNode != null )
         {
-            System.out.println("Printed by pq");
-            System.out.println(next.toString());
+            solvable = true;
+            //System.out.println("Printed by pq");
+            //System.out.println(finalNode.thisBoard.toString());
         }
-        if ( next2 != null )
+        if ( finalNode2 != null )
         {
-            System.out.println("Printed by pq2");
-            System.out.println(next2.toString());
+            solvable = false;
+            //System.out.println("Printed by pq2");
+            //System.out.println(finalNode2.thisBoard.toString());
         }
     }
 
-    //public boolean isSolvable()            // is the initial board solvable?
+    public boolean isSolvable()            // is the initial board solvable?
+    {
+        return solvable;
+    }
+
     public int moves()                     // min number of moves to solve initial board; -1 if unsolvable
     {
-        return numOfMoves;
+        if ( solvable )
+            return finalNode.stepsToNow;
+        else
+            return -1;
     }
 
-    private Board nextStep( MinPQ<Node> pq )
+    private Node nextStep( MinPQ<Node> pq )
     {
         if ( pq.isEmpty() ) return null;
         Node thisNode = pq.delMin();
         Board thisBoard = thisNode.thisBoard;
         //System.out.println(thisBoard.toString());
-        if ( thisBoard.isGoal() ) return thisBoard;
+        if ( thisBoard.isGoal() ) return thisNode;
         for ( Board b : thisBoard.neighbors() )
         {
-            if ( thisNode.lastBoard == null || !b.equals( thisNode.lastBoard ) )
-                pq.insert(new Node(b,thisBoard,thisNode.stepsToNow+1));
+            if ( thisNode.lastNode == null || !b.equals( thisNode.lastNode.thisBoard ) )
+                pq.insert(new Node(b,thisNode,thisNode.stepsToNow+1));
         }
         return null;
     }
 
-    //public Iterable<Board> solution()      // sequence of boards in a shortest solution; null if unsolvable
-    //{
+    public Iterable<Board> solution()      // sequence of boards in a shortest solution; null if unsolvable
+    {
+        if ( !solvable )
+            return null;
 
-    //}
+        Stack<Board> s = new Stack<Board>();
+
+        Node thisNode = finalNode;
+        while ( thisNode != null )
+        {
+            s.push( thisNode.thisBoard );
+            thisNode = thisNode.lastNode;
+        }
+
+        ArrayList<Board> arr = new ArrayList<Board>();
+        while( !s.empty() )
+        {
+            arr.add( s.pop() );
+        }
+
+        return arr;
+    }
 
     private class Node implements Comparable<Node> // Node in the game tree
     {
         public Board thisBoard;
-        public Board lastBoard;
+        public Node lastNode;
         public int stepsToNow;
         public int priority;
-        public Node( Board _thisBoard, Board _lastBoard, int _stepsToNow )
+        public Node( Board _thisBoard, Node  _lastNode, int _stepsToNow )
         {
             thisBoard = _thisBoard;
-            lastBoard = _lastBoard;
+            lastNode = _lastNode;
             stepsToNow = _stepsToNow;
-            priority = stepsToNow + this.thisBoard.manhanttan();
+            priority = stepsToNow + this.thisBoard.manhattan();
         }
 
         public int compareTo( Node that )
@@ -96,11 +124,11 @@ public class Solver {
     public static void main(String[] args)
     {
         int index = 0;
-        while ( index++ < 30 )
+        while ( index++ < 2 )
         {
             System.out.println("index = "+index);
             String filename;
-            filename = String.format("./test/puzzle4x4-%02d",index) + ".txt";
+            filename = String.format("./test/puzzle3x3-%02d",index) + ".txt";
             In in = new In(filename);
             int n = in.readInt();
             int[][] arr = new int[n][n];
@@ -111,8 +139,13 @@ public class Solver {
             }
 
             Board b = new Board( arr );
-
             Solver s = new Solver( b );
+
+            System.out.println("isSolvable?: "+s.isSolvable());
+            System.out.println("moves: "+s.moves());
+            for ( Board bb: s.solution() )
+                System.out.println(bb.toString());
+
         }
     }
 }

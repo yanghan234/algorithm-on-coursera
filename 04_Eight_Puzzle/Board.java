@@ -6,12 +6,12 @@ public final class Board
 {
     private int dim;
     private int[][] elems;
-    private int manhanttan;
+    private int manhattan;
     public Board( int[][] blocks )
     {
         elems = blocks;
         dim = blocks.length;
-        manhanttan = compManhattan();
+        manhattan = compManhattan();
     }
 
     public int dimension() { return dim; };
@@ -46,9 +46,9 @@ public final class Board
         return numSteps;
     }
 
-    public int manhanttan()
+    public int manhattan()
     {
-        return manhanttan;
+        return manhattan;
     }
 
     public boolean isGoal()
@@ -214,14 +214,14 @@ public final class Board
 
         System.out.println("Dimension:"+b.dimension());
         System.out.println("Hamming:"+b.hamming());
-        System.out.println("Manhattan:"+b.manhanttan());
+        System.out.println("Manhattan:"+b.manhattan());
         System.out.println("isGoal:"+b.isGoal());
         System.out.println(b.toString());
         System.out.println("twin:\n"+b.twin().toString());
 
         for ( Board bb : b.neighbors() )
         {
-            System.out.println(bb.manhanttan());
+            System.out.println(bb.manhattan());
             System.out.println(bb.toString());
         }
 
