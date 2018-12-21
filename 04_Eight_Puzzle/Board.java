@@ -1,5 +1,6 @@
 import java.util.Iterator;
 import java.util.Arrays;
+import edu.princeton.cs.algs4.StdRandom;
 
 public final class Board
 {
@@ -45,7 +46,7 @@ public final class Board
         return numSteps;
     }
 
-    public int manhattan()
+    public int manhanttan()
     {
         return manhanttan;
     }
@@ -54,7 +55,7 @@ public final class Board
     {
         for ( int i = 0; i < dim; i++ )
             for ( int j = 0; j < dim; j++ )
-                if ( elems[i][j] != i*dim+j+1 )
+                if ( elems[i][j] != ( i*dim+j+1 ) % (dim*dim) )
                     return false;
         return true;
     }
@@ -79,11 +80,11 @@ public final class Board
 
     public boolean equals( Object y )
     {
-        if ( y == this )
-            return true;
-
         if ( y == null )
             return false;
+
+        if ( y == this )
+            return true;
 
         if ( y.getClass() != this.getClass() )
             return false;
@@ -121,8 +122,6 @@ public final class Board
                     }
                 }
 
-                System.out.println("whichi: "+whichi+"whichj: "+whichj);
-
                 if ( whichi+whichj == 0 || ( whichi == 0 && whichj == dim-1 )
                         || ( whichi == dim-1 && whichj == 0 )
                         || ( whichi == dim-1 && whichj == dim-1) )
@@ -133,21 +132,22 @@ public final class Board
                     numOfNeighbors = 4;
 
                 neighborBoards = new Board[numOfNeighbors];
-                System.out.println("neighborBoards.length"+ neighborBoards.length);
                 int index = 0;
                 for ( int k = whichi-1; k <= whichi+1; k++ )
                 {
-                    for ( int l = whichj - 1; l <= whichj+1; l++ )
+                    for ( int l = whichj-1; l <= whichj+1; l++ )
                     {
-                        if ( abs(k-whichi)+abs(l-whichj) == 1  )
+                        if ( abs(k-whichi)+abs(l-whichj) == 1 && k >= 0 && l>= 0 && k < dim && l < dim  )
                         {
+                            //System.out.println("whichi = "+whichi+", whichj = "+whichj);
+                            //System.out.println("k = "+k+", l = "+l );
                             int[][] _elems = new int[dim][dim];
                             for ( int ii = 0; ii < dim; ii++ )
                                 for ( int kk = 0; kk < dim; kk++ )
                                     _elems[ii][kk] = elems[ii][kk];
+                            _elems[whichi][whichj] = _elems[k][l];
+                            _elems[k][l] = 0;
                             neighborBoards[index] = new Board(_elems);
-                            neighborBoards[index].elems[whichi][whichj] = neighborBoards[index].elems[k][l];
-                            neighborBoards[index].elems[k][l] = 0;
                             index++;
                         }
                     }
@@ -159,8 +159,13 @@ public final class Board
                 return new Iterator<Board>()
                 {
                     private int current = 0;
+                    private int[] id = StdRandom.permutation(neighborBoards.length);
                     public boolean hasNext() { return current < numOfNeighbors; }
-                    public Board next() { return neighborBoards[current++]; }
+                    public Board next() {
+                        Board item = neighborBoards[id[current]];
+                        current++;
+                        return item;
+                    }
                 };
             }
         }; // end of class iterable
@@ -209,13 +214,16 @@ public final class Board
 
         System.out.println("Dimension:"+b.dimension());
         System.out.println("Hamming:"+b.hamming());
-        System.out.println("Manhattan:"+b.manhattan());
+        System.out.println("Manhattan:"+b.manhanttan());
         System.out.println("isGoal:"+b.isGoal());
         System.out.println(b.toString());
         System.out.println("twin:\n"+b.twin().toString());
 
         for ( Board bb : b.neighbors() )
+        {
+            System.out.println(bb.manhanttan());
             System.out.println(bb.toString());
+        }
 
         System.out.println("equal to twin?:"+b.equals(b.twin()));
 
