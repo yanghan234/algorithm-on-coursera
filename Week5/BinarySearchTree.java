@@ -8,7 +8,7 @@ public class BinarySearchTree<Key extends Comparable<Key>,Val>
     public BinarySearchTree(){ root = null; count = 0; }
     public BinarySearchTree(Key k, Val v)
     {
-        root = new Node<Key,Val>(k,v);
+        root = new Node(k,v);
         count++;
     }
 
@@ -33,12 +33,12 @@ public class BinarySearchTree<Key extends Comparable<Key>,Val>
     private Node putTo(Node where, Key key, Val val)
     {
         if ( where == null )
-            return new Node<Key,Val>(key,val);
-        if ( key.compareTo((Key) where.key) > 0 )
+            return new Node(key,val);
+        if ( key.compareTo(where.key) > 0 )
             where.right = putTo(where.right,key,val);
-        else if ( key.compareTo((Key) where.key) < 0 )
+        else if ( key.compareTo(where.key) < 0 )
             where.left = putTo(where.left,key,val);
-        else if ( key.compareTo((Key) where.key) == 0 )
+        else if ( key.compareTo(where.key) == 0 )
             where.val = val;
         return where;
     }
@@ -56,12 +56,12 @@ public class BinarySearchTree<Key extends Comparable<Key>,Val>
     {
         if ( where == null )
             return null;
-        if ( key.compareTo((Key) where.key) < 0 )
+        if ( key.compareTo(where.key) < 0 )
             return getFrom(where.left, key);
-        else if ( key.compareTo((Key) where.key) > 0 )
+        else if ( key.compareTo(where.key) > 0 )
             return getFrom(where.right, key);
         else
-            return ((Val) where.val);
+            return (where.val);
     }
 
     public boolean contains(Key key)
@@ -79,9 +79,9 @@ public class BinarySearchTree<Key extends Comparable<Key>,Val>
     {
         if ( where == null )
             return null;
-        if ( key.compareTo((Key) where.key) < 0 )
+        if ( key.compareTo(where.key) < 0 )
             where.left = deleteFrom(where.left,key);
-        else if ( key.compareTo((Key) where.key) > 0 )
+        else if ( key.compareTo(where.key) > 0 )
             where.right = deleteFrom(where.right,key);
         else
         {
@@ -112,15 +112,15 @@ public class BinarySearchTree<Key extends Comparable<Key>,Val>
 
     private void swap( Node a, Node b )
     {
-        Node<Key,Val> tmp = new Node<Key,Val>();
+        Node tmp = new Node();
 
-        tmp.key = (Key) a.key;
-        a.key = (Key) b.key;
-        b.key = (Key) tmp.key;
+        tmp.key = a.key;
+        a.key = b.key;
+        b.key = tmp.key;
 
-        tmp.val = (Val) a.val;
-        a.val = (Val) b.val;
-        b.val = (Val) tmp.val;
+        tmp.val = a.val;
+        a.val = b.val;
+        b.val = tmp.val;
     }
 
     public void displayme()
@@ -144,8 +144,8 @@ public class BinarySearchTree<Key extends Comparable<Key>,Val>
         Node current = root;
         while ( current.left != null )
             current = current.left;
-        Val val = (Val) current.val;
-        delete((Key) current.key);
+        Val val = current.val;
+        delete(current.key);
         count--;
         return val;
     }
@@ -157,18 +157,18 @@ public class BinarySearchTree<Key extends Comparable<Key>,Val>
         Node current = root;
         while ( current.right != null )
             current = current.right;
-        Val val = (Val) current.val;
-        delete((Key) current.key);
+        Val val = current.val;
+        delete(current.key);
         count--;
         return val;
     }
 
-    private class Node<Key,Val>
+    private class Node
     {
         public Key key;
         public Val val;
-        public Node<Key,Val> left;
-        public Node<Key,Val> right;
+        public Node left;
+        public Node right;
         public Node(){};
         public Node(Key k, Val v)
         {

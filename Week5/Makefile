@@ -3,7 +3,8 @@ JVM = java
 JFLAGS = -cp .:../algs4.jar
 CLASSES = UnorderedLinkedListSymbolTable.class \
 		  OrderedArraySymbolTable.class \
-		  BinarySearchTree.class
+		  BinarySearchTree.class \
+		  RedBlackTree.class
 
 
 all : $(CLASSES)
@@ -17,8 +18,11 @@ OrderedArraySymbolTable.class : OrderedArraySymbolTable.java
 BinarySearchTree.class : BinarySearchTree.java
 	$(JC) $(JFLAGS) $^
 
+RedBlackTree.class : RedBlackTree.java
+	$(JC) $(JFLAGS) $^
+
 run :
-	$(JVM) $(JFLAGS) BinarySearchTree
+	$(JVM) $(JFLAGS) RedBlackTree
 
 clean :
 	rm *.class
