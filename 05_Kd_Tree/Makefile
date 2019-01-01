@@ -11,7 +11,7 @@ all : $(CLASSES)
 	$(JC)  $(JFLAGS) $^
 
 run :
-	$(JVM) $(JFLAGS) PointSET
+	$(JVM) $(JFLAGS) KdTree
 
 clean :
 	rm *.class
