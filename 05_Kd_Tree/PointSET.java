@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.Set;
 import java.lang.IllegalArgumentException;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.SET;
@@ -6,15 +7,14 @@ import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.RectHV;
 public class PointSET
 {
-    private int count;
     private SET<Point2D> points;
     public PointSET()
     {
         points = new SET<Point2D>();
-        count = 0;
     }
 
-    public boolean isEmpty() { return count == 0; }
+    public boolean isEmpty() { return points.isEmpty(); }
+    public int size() { return points.size(); }
 
     public void insert(Point2D p)
     {
@@ -40,11 +40,13 @@ public class PointSET
     {
         if ( rect == null )
             throw new IllegalArgumentException("Argument to range() method cannot be null!!");
+        if ( isEmpty() )
+            return null;
         SET<Point2D> ps = new SET<Point2D>();
-        System.out.printf("[ %3.1f, %3.1f ] x [ %3.1f, %3.1f ]\n",rect.xmin(),rect.xmax(),rect.ymin(),rect.ymax());
+        //System.out.printf("[ %3.1f, %3.1f ] x [ %3.1f, %3.1f ]\n",rect.xmin(),rect.xmax(),rect.ymin(),rect.ymax());
         for ( Point2D p : points )
         {
-            System.out.printf("Point: ( %6.3f, %6.3f )\n",p.x(),p.y());
+            //System.out.printf("Point: ( %6.3f, %6.3f )\n",p.x(),p.y());
             if ( p.x() >= rect.xmin()
                     && p.x() <= rect.xmax()
                     && p.y() >= rect.ymin()
@@ -58,6 +60,8 @@ public class PointSET
     {
         if ( p == null )
             throw new IllegalArgumentException("Argument to nearest() method cannot be null!!");
+        if ( isEmpty() )
+            return null;
         double distance = Double.POSITIVE_INFINITY;
         Point2D nearestPoint = new Point2D(0,0);
         for ( Point2D ps : points )
