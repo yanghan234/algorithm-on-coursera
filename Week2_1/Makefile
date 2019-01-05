@@ -11,6 +11,8 @@ all : $(CLASS)
 
 run :
 	$(JVM) $(JFLAGS) DFSPath
+	$(JVM) $(JFLAGS) BFSPath
+	$(JVM) $(JFLAGS) ConnectedComponent
 
 clean :
 	rm *.class
