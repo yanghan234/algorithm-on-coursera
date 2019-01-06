@@ -7,3 +7,4 @@ algs4.jar
 */*.csv
 */input.txt
 */test
+*.class
