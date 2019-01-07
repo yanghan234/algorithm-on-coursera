@@ -14,7 +14,7 @@ run :
 	#$(JVM) $(JFLAGS) DFSPath input.txt
 	#$(JVM) $(JFLAGS) BFSPath input.txt
 	#$(JVM) $(JFLAGS) CheckDAG input.txt
-	#$(JVM) $(JFLAGS) TopologicalSort input2.txt
+	$(JVM) $(JFLAGS) TopologicalSort input.txt
 	$(JVM) $(JFLAGS) StrongComponent input2.txt
 
 clean :

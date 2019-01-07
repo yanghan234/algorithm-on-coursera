@@ -23,9 +23,12 @@ public class StrongComponent
             prev[i] = 0;
         }
 
+        System.out.println("Reverse digraph:");
+        rdg.display();
         TopologicalSort topo = new TopologicalSort(rdg);
         topo.compTopSort();
-        System.out.println("Reverse order of reverse digraph"+topo.reverseOrder().toString());
+        System.out.println("Postorder of reverse digraph"+topo.postOrder().toString());
+        System.out.println("Reverse postorder of reverse digraph"+topo.reverseOrder().toString());
 
         int icc = 0;
         for ( int i: topo.reverseOrder() )
@@ -33,7 +36,9 @@ public class StrongComponent
             {
                 marked[i] = true;
                 prev[i] = i;
-                DFS(dg,i,icc++);
+                scc[i] = icc;
+                DFS(dg,i,icc);
+                icc++;
             }
     }
 
@@ -55,6 +60,7 @@ public class StrongComponent
                 marked[i] = true;
                 prev[i] = s;
                 scc[i] = icc;
+                DFS(g,i,icc);
             }
         }
     }
