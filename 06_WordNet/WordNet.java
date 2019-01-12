@@ -1,113 +1,28 @@
 import edu.princeton.cs.algs4.Digraph;
 import java.lang.IllegalArgumentException;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Digraph;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 public class WordNet
 {
-    private int numNode;
-    private int[] prev;
-    private ArrayList<Node> nodes;
-    private HashSet<Integer>[] adj;
+    private int numSynset;
     private ArrayList<String> nouns;
-    private class Node
-    {
-        public int index;
-        public String synset;
-
-        public Node(int index, String str)
-        {
-            this.index = index;
-            synset = str;
-        }
-    }
+    private ArrayList<Integer> ids;
+    public Digraph graph;
 
     public WordNet(String synsets, String hypernyms)
     {
         if ( synsets == null || hypernyms == null )
             throw new IllegalArgumentException("File not given");
-        numNode = 0;
-        this.nodes = new ArrayList<Node>();
         this.nouns = new ArrayList<String>();
+        this.ids = new ArrayList<Integer>();
         this.readSynsets(synsets);
-        adj = (HashSet<Integer>[]) new HashSet[numNode];
-        for ( int i = 0; i < numNode; i++ )
-            adj[i] = new HashSet<Integer>();
+        this.numSynset = nouns.size();
+
+        graph = new Digraph(this.numSynset);
         this.readHypernyms(hypernyms);
-    }
-
-    public Iterable<String> nouns()
-    {
-        return nouns;
-    }
-
-    public boolean isNoun(String word)
-    {
-        return nouns.contains(word);
-    }
-
-    public String sap(String nounA, String nounB)
-    {
-        if ( !isNoun(nounA) )
-            System.out.println("nounA not in nouns");
-        if ( !isNoun(nounB) )
-            System.out.println("nounB not in nouns");
-        if ( !(isNoun(nounA) && isNoun(nounB)) )
-            return null;
-        if ( nounA.equals(nounB) )
-            return nounA;
-        int indexA = -1;
-        int indexB = -1;
-        HashSet<Integer> setA = new HashSet<Integer>();
-        HashSet<Integer> setB = new HashSet<Integer>();
-        for ( Node n : nodes )
-        {
-            if ( n.synset.equals(nounA) )
-                indexA = n.index;
-            if ( n.synset.equals(nounB) )
-                indexB = n.index;
-            if ( indexA >= 0 && indexB >= 0 )
-                break;
-        }
-        System.out.println("indexA = "+indexA+", indexB = "+indexB);
-
-        LinkedList<Integer> qA = new LinkedList<Integer>();
-        LinkedList<Integer> qB = new LinkedList<Integer>();
-
-        qA.addLast(indexA);
-        setA.add(indexA);
-        while ( !qA.isEmpty() )
-        {
-            int v = qA.pollFirst();
-            for ( int i : adj[v] )
-                if ( !setA.contains(i) )
-                {
-                    setA.add(i);
-                    qA.addLast(i);
-                    prev[i] = v;
-                }
-        }
-
-        qB.addLast(indexB);
-        setB.add(indexB);
-        while ( !qB.isEmpty() )
-        {
-            int v = qB.pollFirst();
-            for ( int i : adj[v] )
-                if ( !setB.contains(i) )
-                {
-                    setB.add(i);
-                    qB.addLast(i);
-                    if ( setA.contains(i) )
-                    {
-                        qB.addLast(i);
-                        Node n = nodes.get(i);
-                        return n.synset;
-                    }
-                }
-        }
-        return null;
     }
 
     private void readSynsets(String filename)
@@ -119,13 +34,9 @@ public class WordNet
         {
             String line = syn.readLine();
             String[] strs = line.split(",");
-            assert strs.length >= 2;
-            Node n = new Node(Integer.valueOf(strs[0]),strs[1]);
+            this.ids.add(Integer.valueOf(strs[0]));
             this.nouns.add(strs[1]);
-            this.nodes.add(n);
-            numNode++;
         }
-        prev = new int[numNode];
     }
 
     private void readHypernyms(String filename)
@@ -140,31 +51,97 @@ public class WordNet
             int index = Integer.valueOf(strs[0]);
             if ( strs.length > 1 )
                 for ( int i = 1; i < strs.length; i++ )
-                    this.adj[index].add(Integer.valueOf(strs[i]));
+                    this.graph.addEdge(index,Integer.valueOf(strs[i]));
         }
     }
 
-    public void glance()
+    public Iterable<String> nouns()
     {
-        for ( int i = 0; i < 35; i++ )
-        {
-            Node n = nodes.get(i);
-            System.out.printf("%d,",n.index);
-            System.out.printf("%s\n",n.synset);
-            System.out.println(this.adj[i].toString());
-        }
+        return nouns;
     }
+
+    public boolean isNoun(String word)
+    {
+        return nouns.contains(word);
+    }
+
+    public int distance(String nounA, String nounB)
+    {
+        if ( !isNoun(nounA) || !isNoun(nounB) )
+            return -1;
+        if ( nounA.equals(nounB) )
+            return 0;
+
+        int indexA = -1;
+        int indexB = -1;
+        for ( int i = 0; i < nouns.size(); i++ )
+        {
+            if ( nounA.equals(nouns.get(i)) )
+                indexA = i;
+            if ( nounB.equals(nouns.get(i)) )
+                indexB = i;
+            if ( indexA >= 0 && indexB >= 0 )
+                break;
+        }
+        if ( indexA < 0 || indexB < 0 )
+            return -1;
+        return 0;
+    }
+
+//    public String sap(String nounA, String nounB)
+//    {
+//        if ( !isNoun(nounA) )
+//            System.out.println("nounA not in nouns");
+//        if ( !isNoun(nounB) )
+//            System.out.println("nounB not in nouns");
+//        if ( !(isNoun(nounA) && isNoun(nounB)) )
+//            return null;
+//        if ( nounA.equals(nounB) )
+//            return nounA;
+//        int indexA = -1;
+//        int indexB = -1;
+//        HashSet<Integer> setA = new HashSet<Integer>();
+//        HashSet<Integer> setB = new HashSet<Integer>();
+//        for ( Node n : nodes )
+//        {
+//            if ( n.synset.equals(nounA) )
+//                indexA = n.index;
+//            if ( n.synset.equals(nounB) )
+//                indexB = n.index;
+//            if ( indexA >= 0 && indexB >= 0 )
+//                break;
+//        }
+//        System.out.println("indexA = "+indexA+", indexB = "+indexB);
+//
+//        return null;
+//    }
+//
+//    public void glance()
+//    {
+//        for ( int i = 0; i < 35; i++ )
+//        {
+//            Node n = nodes.get(i);
+//            System.out.printf("%d,",n.index);
+//            System.out.printf("%s\n",n.synset);
+//            System.out.println(this.adj[i].toString());
+//        }
+//    }
 
     public static void main(String[] args)
     {
         String synsetFile = "./synsets.txt";
         String hypernymFile = "./hypernyms.txt";
 
-        WordNet wn = new WordNet(synsetFile,hypernymFile);
-//        wn.glance();
+        WordNet wn = new WordNet(synsetFile, hypernymFile);
 
-        System.out.println(wn.isNoun("ALGOL"));
-        System.out.println(wn.sap("ALGOL","APC"));
+        SAP sap = new SAP(wn.graph);
+
+        System.out.println(sap.ancestor(1,2));
+        System.out.println(sap.length(1,2));
+
+        int[] arr = {0,1,2,3};
+        //System.out.println(sap.commonAncestor(arr));
+
     }
 
 }
