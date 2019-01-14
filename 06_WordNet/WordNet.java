@@ -1,28 +1,35 @@
 import edu.princeton.cs.algs4.Digraph;
 import java.lang.IllegalArgumentException;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdIn;
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Digraph;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
-public class WordNet
+public final class WordNet
 {
-    private int numSynset;
+    private ArrayList<HashSet<String>> nounsSplitted;
+    private HashSet<String> allNouns;
     private ArrayList<String> nouns;
     private ArrayList<Integer> ids;
-    public Digraph graph;
+    private final Digraph graph;
+    private SAP sap;
 
     public WordNet(String synsets, String hypernyms)
     {
         if ( synsets == null || hypernyms == null )
             throw new IllegalArgumentException("File not given");
+        this.nounsSplitted= new ArrayList<HashSet<String>>();
+        this.allNouns = new HashSet<String>();
         this.nouns = new ArrayList<String>();
         this.ids = new ArrayList<Integer>();
         this.readSynsets(synsets);
-        this.numSynset = nouns.size();
 
-        graph = new Digraph(this.numSynset);
+        graph = new Digraph(nouns.size());
         this.readHypernyms(hypernyms);
+
+        sap = new SAP(graph);
     }
 
     private void readSynsets(String filename)
@@ -32,10 +39,17 @@ public class WordNet
         In syn = new In(filename);
         while ( !syn.isEmpty() )
         {
+            HashSet<String> h = new HashSet<String>();
             String line = syn.readLine();
             String[] strs = line.split(",");
             this.ids.add(Integer.valueOf(strs[0]));
             this.nouns.add(strs[1]);
+            for ( String s: strs[1].trim().split("\\s+") )
+            {
+                h.add(s);
+                allNouns.add(s);
+            }
+            this.nounsSplitted.add(h);
         }
     }
 
@@ -57,91 +71,76 @@ public class WordNet
 
     public Iterable<String> nouns()
     {
-        return nouns;
+        return allNouns;
     }
 
     public boolean isNoun(String word)
     {
-        return nouns.contains(word);
+        if ( word == null )
+            throw new IllegalArgumentException();
+        return allNouns.contains(word);
     }
 
     public int distance(String nounA, String nounB)
     {
         if ( !isNoun(nounA) || !isNoun(nounB) )
-            return -1;
+            throw new IllegalArgumentException();
         if ( nounA.equals(nounB) )
             return 0;
 
-        int indexA = -1;
-        int indexB = -1;
-        for ( int i = 0; i < nouns.size(); i++ )
+        ArrayList<Integer> indexA = new ArrayList<Integer>();
+        ArrayList<Integer> indexB = new ArrayList<Integer>();
+        for ( int i = 0; i < nounsSplitted.size(); i++ )
         {
-            if ( nounA.equals(nouns.get(i)) )
-                indexA = i;
-            if ( nounB.equals(nouns.get(i)) )
-                indexB = i;
-            if ( indexA >= 0 && indexB >= 0 )
-                break;
+            if ( nounsSplitted.get(i).contains(nounA) )
+                indexA.add(i);
+            if ( nounsSplitted.get(i).contains(nounB) )
+                indexB.add(i);
         }
-        if ( indexA < 0 || indexB < 0 )
-            return -1;
-        return 0;
+
+        return sap.length(indexA,indexB);
     }
 
-//    public String sap(String nounA, String nounB)
-//    {
-//        if ( !isNoun(nounA) )
-//            System.out.println("nounA not in nouns");
-//        if ( !isNoun(nounB) )
-//            System.out.println("nounB not in nouns");
-//        if ( !(isNoun(nounA) && isNoun(nounB)) )
-//            return null;
-//        if ( nounA.equals(nounB) )
-//            return nounA;
-//        int indexA = -1;
-//        int indexB = -1;
-//        HashSet<Integer> setA = new HashSet<Integer>();
-//        HashSet<Integer> setB = new HashSet<Integer>();
-//        for ( Node n : nodes )
-//        {
-//            if ( n.synset.equals(nounA) )
-//                indexA = n.index;
-//            if ( n.synset.equals(nounB) )
-//                indexB = n.index;
-//            if ( indexA >= 0 && indexB >= 0 )
-//                break;
-//        }
-//        System.out.println("indexA = "+indexA+", indexB = "+indexB);
-//
-//        return null;
-//    }
-//
-//    public void glance()
-//    {
-//        for ( int i = 0; i < 35; i++ )
-//        {
-//            Node n = nodes.get(i);
-//            System.out.printf("%d,",n.index);
-//            System.out.printf("%s\n",n.synset);
-//            System.out.println(this.adj[i].toString());
-//        }
-//    }
+    public String sap(String nounA, String nounB)
+    {
+        if ( !isNoun(nounA) || !isNoun(nounB) )
+            throw new IllegalArgumentException();
 
+        ArrayList<Integer> indexA = new ArrayList<Integer>();
+        ArrayList<Integer> indexB = new ArrayList<Integer>();
+        for ( int i = 0; i < nounsSplitted.size(); i++ )
+        {
+            if ( nounsSplitted.get(i).contains(nounA) )
+                indexA.add(i);
+            if ( nounsSplitted.get(i).contains(nounB) )
+                indexB.add(i);
+        }
+
+        int head = sap.ancestor(indexA,indexB);
+        return nouns.get(head);
+    }
+
+//    public static void main(String[] args)
+//    {
+//        In in = new In(args[0]);
+//        Digraph G = new Digraph(in);
+//        SAP sap = new SAP(G);
+//        while (!StdIn.isEmpty())
+//        {
+//            int v = StdIn.readInt();
+//            int w = StdIn.readInt();
+//            int length   = sap.length(v, w);
+//            int ancestor = sap.ancestor(v, w);
+//            StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
+//        }
+//    }
     public static void main(String[] args)
     {
-        String synsetFile = "./synsets.txt";
-        String hypernymFile = "./hypernyms.txt";
-
-        WordNet wn = new WordNet(synsetFile, hypernymFile);
-
-        SAP sap = new SAP(wn.graph);
-
-        System.out.println(sap.ancestor(1,2));
-        System.out.println(sap.length(1,2));
-
-        int[] arr = {0,1,2,3};
-        //System.out.println(sap.commonAncestor(arr));
-
+        WordNet wn = new WordNet("./test/synsets.txt","./test/hypernyms.txt");
+        //String nounA = "immunoglobulin_G";
+        //String nounB = "immunoglobulin_G";
+        //System.out.println(wn.sap(nounA,nounB));
+        //System.out.println(wn.distance(nounA,nounB));
+        wn.nouns();
     }
-
 }

@@ -3,30 +3,33 @@ import java.lang.IllegalArgumentException;
 import java.util.LinkedList;
 import java.util.HashSet;
 import java.util.Arrays;
-public class SAP
+import java.util.TreeMap;
+public final class SAP
 {
-    private Digraph graph;
-    private LinkedList<Node> vAncestor;
-    private LinkedList<Node> wAncestor;
+    private final Digraph graph;
+    private TreeMap<Integer,Node> vAncestor;
+    private TreeMap<Integer,Node> wAncestor;
     public SAP(Digraph G)
     {
         if ( G == null )
             throw new IllegalArgumentException("Argument to SAP constructor cannot be null!!");
-        this.graph = G;
+        this.graph = new Digraph(G);
     }
 
     private class Node
     {
         public int me;
         public int prev;
-        public Node(int m, int p)
+        public int layer;
+        public Node(int m, int p, int l)
         {
             this.me = m;
             this.prev = p;
+            this.layer = l;
         }
         public String toString()
         {
-            return "( me: "+this.me+", prev: "+this.prev+" )\n";
+            return "( me: "+this.me+", prev: "+this.prev+", "+this.layer+" )\n";
         }
     }
 
@@ -35,60 +38,47 @@ public class SAP
         int common = this.ancestor(v,w);
         if ( common == -1 )
             return -1;
-        int numOfNodes = 0;
-        for ( Node n: vAncestor )
-        {
-            if ( n.me != common )
-                numOfNodes++;
-            else
-                break;
-        }
-        for ( Node n: wAncestor )
-        {
-            if ( n.me != common )
-                numOfNodes++;
-            else
-                break;
-        }
-        return numOfNodes;
+        Node nv = vAncestor.get(common);
+        Node nw = wAncestor.get(common);
+        return nv.layer+nw.layer;
     }
 
     public int ancestor(int v, int w)
     {
-        vAncestor = new LinkedList<Node>();
-        wAncestor = new LinkedList<Node>();
+        vAncestor = new TreeMap<Integer,Node>();
+        wAncestor = new TreeMap<Integer,Node>();
         vAncestor = this.bfs(graph, v);
         wAncestor = this.bfs(graph, w);
-        HashSet<Integer> visited = new HashSet<Integer>();
 
-        for ( Node n: vAncestor )
-        {
-            System.out.print(n.toString());
-            visited.add(n.me);
-        }
-
+        int totalLayer = -1;
         int common = -1;
-        for ( Node n: wAncestor )
-        {
-            System.out.println(n.toString());
-            if ( visited.contains(n.me) )
+        for ( int i: vAncestor.keySet() )
+            if ( wAncestor.containsKey(i) )
             {
-                common = n.me;
-                break;
+                if ( totalLayer < 0 )
+                {
+                    common = i;
+                    totalLayer = vAncestor.get(i).layer+wAncestor.get(i).layer;
+                }
+                else if ( totalLayer > vAncestor.get(i).layer+wAncestor.get(i).layer )
+                {
+                    common = i;
+                    totalLayer = vAncestor.get(i).layer+wAncestor.get(i).layer;
+                }
             }
-        }
+
         return common;
     }
 
-    public LinkedList<Node> bfs(Digraph dg, int v)
+    private TreeMap<Integer,Node> bfs(Digraph dg, int v)
     {
         HashSet<Integer> visited = new HashSet<Integer>();
         LinkedList<Integer> queue = new LinkedList<Integer>();
-        LinkedList<Node> ancestor = new LinkedList<Node>();
+        TreeMap<Integer,Node> ancestor = new TreeMap<Integer,Node>();
 
         visited.add(v);
         queue.addLast(v);
-        ancestor.addLast(new Node(v,v));
+        ancestor.put(v,new Node(v,v,0));
         while ( !queue.isEmpty() )
         {
             int w = queue.pollFirst();
@@ -98,45 +88,78 @@ public class SAP
                 {
                     visited.add(i);
                     queue.addLast(i);
-                    ancestor.addLast(new Node(i,w));
+                    Node nw = ancestor.get(w);
+                    ancestor.put(i,new Node(i,w,nw.layer+1));
                 }
             }
         }
         return ancestor;
     }
 
+    public int ancestor(Iterable<Integer> v, Iterable<Integer> w)
+    {
+        if ( v == null || w == null )
+            throw new IllegalArgumentException();
+        int shortDistance = -1;
+        int shortCommon = -1;
+        for ( Object vv: v )
+        {
+            if ( vv == null )
+                throw new IllegalArgumentException();
+            for ( Object ww: w )
+            {
+                if ( ww == null )
+                    throw new IllegalArgumentException();
+                int distance = this.length((int) vv,(int) ww);
+                if ( shortDistance < 0 )
+                {
+                    shortDistance = distance;
+                    shortCommon = this.ancestor((int) vv,(int) ww);
+                }
+                else if ( shortDistance > distance )
+                {
+                    shortDistance = distance;
+                    shortCommon = this.ancestor((int) vv,(int) ww);
+                }
+            }
+        }
+        return shortCommon;
+    }
+
     public int length(Iterable<Integer> v, Iterable<Integer> w)
     {
-        int vhead = this.ancestorOfGroup(this.graph,v);
-        int whead = this.ancestorOfGroup(this.graph,w);
-        return this.ancestor(vhead,whead);
-    }
-
-    //public int ancestor(Iterable<Integer> v, Iterable<Integer> w)
-    //{
-
-    //}
-
-    //public int ancestorOfGroup(int[] v)
-    //{
-    //    return this.ancestorOfGroup(this.graph,v);
-    //}
-    private int ancestorOfGroup(Digraph dg, int[] v)
-    {
-        if ( v.length == 1 )
-            return v[0];
-        else if ( v.length == 2 )
-            return this.ancestor(v[0],v[1]);
-        else
+        if ( v == null || w == null )
+            throw new IllegalArgumentException();
+        int shortDistance = -1;
+        for ( Object vv: v )
         {
-            int left = this.ancestorOfGroup(dg,Arrays.copyOfRange(v,0,v.length/2));
-            int right = this.ancestorOfGroup(dg,Arrays.copyOfRange(v,v.length/2,v.length));
-            return this.ancestor(left,right);
+            if ( vv == null )
+                throw new IllegalArgumentException();
+            for ( Object ww: w )
+            {
+                if ( ww == null )
+                    throw new IllegalArgumentException();
+                int distance = this.length((int) vv,(int) ww);
+                if ( shortDistance < 0 )
+                    shortDistance = distance;
+                else if ( shortDistance > distance )
+                    shortDistance = distance;
+            }
         }
+        return shortDistance;
     }
 
-//    public static void main(String[] args)
-//    {
-//
-//    }
+    //private int ancestorOfGroup(int[] v)
+    //{
+    //    if ( v.length == 1 )
+    //        return v[0];
+    //    else if ( v.length == 2 )
+    //        return this.ancestor(v[0],v[1]);
+    //    else
+    //    {
+    //        int left = this.ancestorOfGroup(Arrays.copyOfRange(v,0,v.length/2));
+    //        int right = this.ancestorOfGroup(Arrays.copyOfRange(v,v.length/2,v.length));
+    //        return this.ancestor(left,right);
+    //    }
+    //}
 }
