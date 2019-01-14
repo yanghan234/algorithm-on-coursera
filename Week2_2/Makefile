@@ -10,7 +10,7 @@ all : $(CLASS)
 	$(JC) $(JFLAGS) $^
 
 run :
-	$(JVM) $(JFLAGS) LazyPrimMST
+	$(JVM) $(JFLAGS) EagerPrimMST
 
 clean :
 	rm *.class
