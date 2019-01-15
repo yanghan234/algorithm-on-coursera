@@ -30,29 +30,35 @@ public class EagerPrimMST extends MST
     {
         private int me;
         private double lastDistToMe;
-        private Edge lastEdgeToMe;
-        public Node( int me, double lastDistToMe, Edge lastEdgeToMe )
-        {
-            this.me = me;
-            this.lastDistToMe = lastDistToMe;
-            this.lastEdgeToMe = lastEdgeToMe;
-        }
-
         public Node( int me, double lastDistToMe )
         {
             this.me = me;
             this.lastDistToMe = lastDistToMe;
-            this.lastEdgeToMe = new Edge(0,0,0.0);
         }
-
         public int compareTo(Node that)
         {
-            if ( this.lastEdgeToMe.weight() < that.lastEdgeToMe.weight() )
+            if ( this.lastDistToMe < that.lastDistToMe )
                 return -1;
-            else if ( this.lastEdgeToMe.weight() > that.lastEdgeToMe.weight() )
+            else if ( this.lastDistToMe > that.lastDistToMe )
                 return 1;
             else
                 return 0;
+        }
+        public boolean equals(Object that)
+        {
+            if ( that == null ) return false;
+            else if ( that.getClass() != this.getClass() ) return false;
+            else
+            {
+                Node tmp = (Node) that;
+                return this.me == tmp.me;
+            }
+        }
+        public String toString()
+        {
+            String s = "";
+            s += "( me : "+me+", dist : "+lastDistToMe+" )";
+            return s;
         }
     }
 
@@ -61,10 +67,31 @@ public class EagerPrimMST extends MST
         return MSTEdges;
     }
 
+    //public void computeMST(int s)
+    //{
+    //    MinPQ<Node> pq = new MinPQ<Node>();
+    //    pq.add(new Node(0,0.1));
+    //    pq.add(new Node(1,1.1));
+    //    pq.add(new Node(5,0.6));
+    //    pq.add(new Node(3,1.2));
+    //    pq.add(new Node(12,0.8));
+    //    pq.add(new Node(8,0.7));
+    //    pq.add(new Node(10,0.9));
+    //    for ( Node n: pq )
+    //        System.out.printf("me = %d, weight = %f\n",n.me,n.lastDistToMe);
+    //    System.out.printf("\n");
+    //    pq.delete(new Node(12,1.1));
+    //    for ( Node n: pq )
+    //        System.out.printf("me = %d, weight = %f\n",n.me,n.lastDistToMe);
+    //}
+
     public void computeMST(int s)
     {
-        MinPQ<Node> pq = new MinPQ<Node>(graph.V());
-        pq.add(new Node(s,s));
+        MinPQ<Node> pq = new MinPQ<Node>();
+        pq.add(new Node(s,0.0));
+        distTo[s] = 0.0;
+        edgeTo[s] = null;
+        numInMST = 0;
 
         while ( !pq.isEmpty() && numInMST < graph.V() )
         {
@@ -72,17 +99,24 @@ public class EagerPrimMST extends MST
             if ( marked[n.me] ) continue;
             marked[n.me] = true;
             numInMST++;
-            MSTEdges.add(n.lastEdgeToMe);
+            if ( edgeTo[n.me] != null ) MSTEdges.add(edgeTo[n.me]);
             for ( Edge e: graph.adj(n.me) )
             {
                 int m = e.other(n.me);
                 if ( !marked[m] )
                 {
-                    if ( distTo[m] > e.weight() )
+                    if ( edgeTo[m] == null )
                     {
-
+                        distTo[m] = e.weight();
+                        edgeTo[m] = e;
                     }
-                    pq.add(new Node(m,e.weight(),e));
+                    else if ( distTo[m] > e.weight() )
+                    {
+                        pq.delete(new Node(m,distTo[m]));
+                        distTo[m] = e.weight();
+                        edgeTo[m] = e;
+                    }
+                    pq.add(new Node(m,distTo[m]));
                 }
             }
         }
@@ -108,11 +142,6 @@ public class EagerPrimMST extends MST
 
         EdgeWeightedGraph g = new EdgeWeightedGraph(filename);
         StdDraw.setPenRadius(0.005);
-        for ( Edge e: g.edges() )
-        {
-            int v = e.either();
-            int w = e.other(v);
-        }
         StdDraw.show();
 
         EagerPrimMST mst = new EagerPrimMST(g);

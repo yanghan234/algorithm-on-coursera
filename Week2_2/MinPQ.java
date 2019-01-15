@@ -18,12 +18,12 @@ public class MinPQ<Key> implements Iterable<Key>
 
     public MinPQ()
     {
-        this(2);
+        this(1);
     }
 
     public MinPQ(Comparator<Key> cmptor)
     {
-        this(2,cmptor);
+        this(1,cmptor);
     }
 
     public MinPQ(int cap, Comparator<Key> cmptor)
@@ -34,11 +34,11 @@ public class MinPQ<Key> implements Iterable<Key>
 
     public void add(Key key)
     {
-        //if ( size >= capacity )
-        //    this.resize(capacity*2);
         elems[size] = key;
         size++;
         swim(size-1);
+        if ( isFull() )
+            this.resize(capacity*2);
     }
 
     public Key delMin()
@@ -46,29 +46,32 @@ public class MinPQ<Key> implements Iterable<Key>
         swap(0,size-1);
         Key res = elems[--size];
         sink(0);
-        //if ( size <= capacity/4 )
-        //    this.resize(capacity/2);
+        if ( size <= capacity/4 )
+            this.resize(capacity/2);
         return res;
     }
 
     public void delete(Key key)
     {
-        int pos = 0;
+        int pos = -1;
         for ( int i = 0; i < size; i++ )
             if ( key.equals(elems[i]) )
             {
                 pos = i;
                 break;
             }
+        if ( pos == -1 )
+            return;
         swap(pos,size-1);
         size--;
         sink(pos);
-        //if ( size <= capacity/4 )
-        //    this.resize(capacity/2);
+        if ( size <= capacity/4 )
+            this.resize(capacity/2);
     }
 
     public int size() { return size; }
     public boolean isEmpty() { return size == 0; }
+    public boolean isFull() { return size == capacity; }
 
     public String toString()
     {
