@@ -1,6 +1,6 @@
 JC = javac
 JVM = java
-JFLAGS = -cp .:../algs4.jar
+JFLAGS = -cp .:../.../algs4.jar
 SRC = $(wildcard *.java)
 CLASS = $(SRC:.java=.class)
 

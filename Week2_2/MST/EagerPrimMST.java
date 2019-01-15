@@ -67,24 +67,6 @@ public class EagerPrimMST extends MST
         return MSTEdges;
     }
 
-    //public void computeMST(int s)
-    //{
-    //    MinPQ<Node> pq = new MinPQ<Node>();
-    //    pq.add(new Node(0,0.1));
-    //    pq.add(new Node(1,1.1));
-    //    pq.add(new Node(5,0.6));
-    //    pq.add(new Node(3,1.2));
-    //    pq.add(new Node(12,0.8));
-    //    pq.add(new Node(8,0.7));
-    //    pq.add(new Node(10,0.9));
-    //    for ( Node n: pq )
-    //        System.out.printf("me = %d, weight = %f\n",n.me,n.lastDistToMe);
-    //    System.out.printf("\n");
-    //    pq.delete(new Node(12,1.1));
-    //    for ( Node n: pq )
-    //        System.out.printf("me = %d, weight = %f\n",n.me,n.lastDistToMe);
-    //}
-
     public void computeMST(int s)
     {
         MinPQ<Node> pq = new MinPQ<Node>();
