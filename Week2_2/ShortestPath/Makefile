@@ -10,7 +10,7 @@ all : $(CLASS)
 	$(JC) $(JFLAGS) $^
 
 run :
-	$(JVM) $(JFLAGS) DijkstraSP
+	$(JVM) $(JFLAGS) LazyBellmanFordSP
 
 clean :
 	rm *.class

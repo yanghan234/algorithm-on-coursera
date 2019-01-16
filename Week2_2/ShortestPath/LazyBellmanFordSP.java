@@ -1,59 +1,29 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Stack;
 import java.lang.IllegalArgumentException;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.Point2D;
-public class DijkstraSP extends SP
+public class LazyBellmanFordSP extends SP
 {
-    public DijkstraSP(EdgeWeightedDigraph G, int src)
+    public LazyBellmanFordSP(EdgeWeightedDigraph G, int src)
     {
         this.src = src;
         this.graph = G;
-        distTo = new double[graph.V()];
-        edgeTo = new DirectedEdge[graph.V()];
-        SPedges = new ArrayList<DirectedEdge>();
-
+        this.distTo = new double[graph.V()];
+        this.edgeTo = new DirectedEdge[graph.V()];
+        this.SPedges = new ArrayList<DirectedEdge>();
         for ( int i = 0; i < graph.V(); i++ )
         {
             distTo[i] = Double.POSITIVE_INFINITY;
             edgeTo[i] = null;
         }
-        computeSP(src);
-    }
-
-    private class Node implements Comparable<Node>
-    {
-        private int me;
-        private double distToMe;
-        public Node(int me, double distToMe)
-        {
-            this.me = me;
-            this.distToMe = distToMe;
-        }
-
-        public boolean equals(Object that)
-        {
-            if ( that == null ) return false;
-            else if ( this.getClass() != that.getClass() ) return false;
-            else
-            {
-                Node tmp = (Node) that;
-                return this.me == tmp.me;
-            }
-        }
-
-        public int compareTo(Node that)
-        {
-            if ( this.distToMe < that.distToMe ) return -1;
-            else if ( this.distToMe > that.distToMe ) return 1;
-            else return 0;
-        }
+        distTo[src] = 0.0;
+        this.computeSP(src);
     }
 
     public double distanceTo(int v)
     {
-        if ( edgeTo[v] == null )
+        if ( !hasPathTo(v) )
             throw new IllegalArgumentException();
         return distTo[v];
     }
@@ -65,45 +35,30 @@ public class DijkstraSP extends SP
 
     public Iterable<DirectedEdge> pathTo(int v)
     {
-        if ( edgeTo[v] == null )
+        if ( !hasPathTo(v) )
             throw new IllegalArgumentException();
-        LinkedList<DirectedEdge> s = new LinkedList<DirectedEdge>();
+        LinkedList<DirectedEdge> q = new LinkedList<DirectedEdge>();
         while ( edgeTo[v] != null )
         {
-            s.addFirst( edgeTo[v] );
+            q.addFirst(edgeTo[v]);
             v = edgeTo[v].from();
         }
-        return s;
+        return q;
     }
 
-    public Iterable<DirectedEdge> edges()
+    private void computeSP(int src)
     {
-        return SPedges;
-    }
-
-    private void computeSP(int s)
-    {
-        MinPQ<Node> pq = new MinPQ<Node>();
-        pq.add(new Node(s,0.0));
-        distTo[s] = 0.0;
-        edgeTo[s] = null;
-
-        while ( !pq.isEmpty() )
-        {
-            Node n = pq.delMin();
-            if ( edgeTo[n.me] != null ) SPedges.add(edgeTo[n.me]);
-            for ( DirectedEdge e: graph.adj(n.me) )
-            {
-                int m = e.to();
-                if ( distTo[m] > distTo[n.me] + e.weight() )
+        for ( int pass = 0; pass < graph.V(); pass++ )
+            for ( int v = 0; v < graph.V(); v++ )
+                for ( DirectedEdge e: graph.adj(v) )
                 {
-                    pq.delete(new Node(m,0.0));
-                    edgeTo[m] = e;
-                    distTo[m] = distTo[n.me] + e.weight();
-                    pq.add(new Node(m,distTo[m]));
+                    int w = e.to();
+                    if ( distTo[w] > distTo[v] + e.weight() )
+                    {
+                        distTo[w] = distTo[v] + e.weight();
+                        edgeTo[w] = e;
+                    }
                 }
-            }
-        }
     }
 
     public static void main(String[] args) throws Exception
@@ -127,7 +82,7 @@ public class DijkstraSP extends SP
         StdDraw.setPenRadius(0.005);
         StdDraw.show();
 
-        DijkstraSP sp = new DijkstraSP(g,0);
+        LazyBellmanFordSP sp = new LazyBellmanFordSP(g,0);
 //        StdDraw.enableDoubleBuffering();
 //        StdDraw.setPenColor(StdDraw.BLACK);
 //        int counter = 0;
@@ -166,4 +121,6 @@ public class DijkstraSP extends SP
 
         System.out.println("distTo:"+sp.distanceTo(target));
     }
+
+
 }
